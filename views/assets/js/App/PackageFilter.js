@@ -1,4 +1,5 @@
-import $ from 'jquery';
+import $ from 'cash-dom';
+import Collapse from './Collapse';
 
 class PackageFilter {
     constructor(input, list, listItem) {
@@ -29,30 +30,35 @@ class PackageFilter {
     };
 
     filterPackages() {
-        var needle = this.input.val().toLowerCase(),
+        var instance = this,
+            needle = this.input.val().toLowerCase(),
             closestSelector = this.listItemSelector;
 
-        this.list.hide();
+        Collapse.collapse(this.list);
 
         this.packages.each(function () {
-            $(this).closest(closestSelector).toggle(
-                $(this).text().toLowerCase().indexOf(needle) !== -1
-            );
+            let closest = $(this).closest(closestSelector);
+
+            Collapse.collapse(closest);
+
+            if ($(this).text().toLowerCase().indexOf(needle) !== -1) {
+                Collapse.show(closest);
+            }
         });
 
-        this.list.show();
+        Collapse.show(this.list);
     };
 
     init() {
         var instance = this;
 
-        instance.input.keyup(function () {
+        instance.input.on('keyup', function () {
             instance.updateHash();
             window.clearTimeout(instance.inputTimeout);
             instance.inputTimeout = window.setTimeout(instance.filterPackages, 350);
         });
 
-        $(window).keyup(function (event) {
+        $(window).on('keyup', function (event) {
             if (event.keyCode === 27) { // "ESC" keyCode
                 instance.input.val('');
                 instance.filterPackages();

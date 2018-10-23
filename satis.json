@@ -1,0 +1,20 @@
+{
+    "name": "Sample Satis repository",
+    "description": "Some reusable PHP components in here",
+    "homepage": "https://composer.ipglobal.es",
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/twigphp/Twig"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/symfony/twig-bundle"
+        }
+    ],
+    "require": {
+        "twig/twig": "^2.0",
+        "symfony/twig-bundle": "^3.4 || ^4.0"
+    },
+    "output-dir": "./build"
+}

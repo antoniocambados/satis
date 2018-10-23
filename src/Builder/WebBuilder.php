@@ -16,6 +16,7 @@ namespace Composer\Satis\Builder;
 use Composer\Package\CompletePackageInterface;
 use Composer\Package\PackageInterface;
 use Composer\Package\RootPackageInterface;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * Build the web pages.
@@ -64,6 +65,18 @@ class WebBuilder extends Builder
         ]);
 
         file_put_contents($this->outputDir . '/index.html', $content);
+
+        $this->dumpAssets();
+    }
+
+    protected function dumpAssets()
+    {
+        $templateDir = rtrim($this->getTwigTemplatePath(), '/');
+        $assetsSourceDir = $templateDir . '/dist';
+        $assetsTargetDir = $this->outputDir . '/assets';
+        $fileSystem = new Filesystem();
+        $fileSystem->remove($assetsTargetDir);
+        $fileSystem->symlink($assetsSourceDir, $assetsTargetDir, true);
     }
 
     /**
@@ -95,6 +108,18 @@ class WebBuilder extends Builder
     }
 
     /**
+     * Gets the twig templates path.
+     *
+     * @return string
+     */
+    private function getTwigTemplatePath()
+    {
+        $twigTemplate = $this->config['twig-template'] ?? null;
+
+        return $twigTemplate ? pathinfo($twigTemplate, PATHINFO_DIRNAME) : __DIR__ . '/../../views';
+    }
+
+    /**
      * Gets the twig environment.
      *
      * Creates default if needed.
@@ -104,9 +129,7 @@ class WebBuilder extends Builder
     private function getTwigEnvironment()
     {
         if (null === $this->twig) {
-            $twigTemplate = $this->config['twig-template'] ?? null;
-
-            $templateDir = $twigTemplate ? pathinfo($twigTemplate, PATHINFO_DIRNAME) : __DIR__ . '/../../views';
+            $templateDir = $this->getTwigTemplatePath();
             $loader = new \Twig_Loader_Filesystem($templateDir);
             $this->twig = new \Twig_Environment($loader);
         }
